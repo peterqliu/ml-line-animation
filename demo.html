@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Display a map</title>
+    <meta property="og:description" content="Initialize a map in an HTML element with MapLibre GL JS." />
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+    <script src="index.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body, #map { height: 100%; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+
+    const map = new maplibregl.Map({
+        container: 'map', // container id
+        style: 'https://demotiles.maplibre.org/style.json', // style URL
+        center: [0, 0], // starting position [lng, lat]
+        zoom: 1 // starting zoom
+    });
+
+    // generate some sample data
+    let lines = [];
+    for (i=0; i<4; i++) {
+        lines.push(turf.lineString([[-90, 80-i*20],[90, 80-i*20]]))
+    }
+
+
+    map.on('load', e=>{
+
+        // continuous looping animation
+        const looping = new LineAnimation('looping',{
+            dashLength:1,
+            duration:1500,
+            loop: true,
+            headColor: `rgba(200,0,0,1)`,
+            tailColor: `rgba(200,0,0,0)`,
+            backgroundColor: `rgba(200,0,0,0)`,
+            geojson: lines[0]
+        });
+
+        looping.addTo(map);
+
+        // animation starting/stopping by mouse click
+        const startStop = new LineAnimation('startStop',{
+            dashLength:1,
+            duration:500,
+            loop: true,
+            headColor: `rgba(0,200,0,1)`,
+            tailColor: `rgba(0,200,0,0)`,
+            backgroundColor: `rgba(0,200,0,0)`,
+            geojson: lines[1]
+        });
+
+        startStop.addTo(map);       
+
+        map.on('click', e=>{
+            if (startStop.playing) startStop.pause()
+            else startStop.play()
+        });
+
+        // animation that tracks the cursor's horizontal position
+        const cursorAnimation = new LineAnimation('cursorAnimation',{
+            dashLength:1,
+            headColor: `rgba(0,0,200,1)`,
+            tailColor: `rgba(0,0,0,0)`,
+            backgroundColor: `rgba(0,0,200,0)`,
+            geojson: lines[2]
+        });
+
+        cursorAnimation.addTo(map);
+        map.on('mousemove', e=>{
+            const{point} = e;
+            cursorAnimation.setProgress(point.x/innerWidth)
+        })
+
+
+    })
+
+
+
+</script>
+</body>
+</html>
