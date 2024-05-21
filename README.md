@@ -7,12 +7,13 @@
 
 Animate lines with a sliding effect, with customization for color, lengths, and speed. Leverages the vanilla `line-gradient` property of Maplibre GL/Mapbox GL, with no other dependencies.
 
-  
+Check out `example.html` for a minimal use, and `demo.html` for a few possibilities.
+
 
 ## API
 
 
-<b>`new LineAnimation(id{, options})`
+<b>`new LineAnimation(id{, options})`</b>
 
   
 
